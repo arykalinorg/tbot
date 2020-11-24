@@ -50,17 +50,9 @@ def start(update: Update, context: CallbackContext) -> int:
     return START_ASKING
 
 
-def get_start_asking(update: Update, context: CallbackContext) -> int:
+def get_ask_ready(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("Answer from %s: %s", user.first_name, update.message.text)
-    if update.message.text == 'Да':
-        update.message.reply_text(
-            'Как вас зовут?',
-            reply_markup=ReplyKeyboardRemove(),
-        )
-        logger.info("Answer from %s: is %s getting name", user.first_name, update.message.text)
-        return GET_NAME
-    logger.info("Answer from %s: is %s waiting", user.first_name, update.message.text)
     return GET_NAME
 
 def wait(update: Update, context: CallbackContext) -> int:
@@ -69,20 +61,18 @@ def wait(update: Update, context: CallbackContext) -> int:
     reply_keyboard = [['Я готов!']]
 
     update.message.reply_text(
-        'Привет, я бот интересующийся сообществами.'
-        'Вы готовы поговорить?',
+        'Хоршо. Нажмите Я готов когда будете готовы',
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
-    return WAITING
+    return GET_NAME
 
 
 def get_name(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("Gender of %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
-        'I see! Please send me a photo of yourself, '
-        'so I know what you look like, or send /skip if you don\'t want to.',
+        'Как вас зовут?',
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -167,8 +157,11 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            START_ASKING: [MessageHandler(Filters.regex('^(Да|Нет)$'), get_start_asking)],
-            WAITING: [MessageHandler(Filters.regex('^Я готов!$'), wait)],
+            START_ASKING: [
+                MessageHandler(Filters.regex('^(Да)$'), get_ask_ready),
+                MessageHandler(Filters.regex('^(Нет)$'), wait)
+            ],
+            WAITING: [MessageHandler(Filters.regex('^Я готов!$'), get_name)],
             GET_NAME: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
             LOCATION: [
                 MessageHandler(Filters.location, location),
