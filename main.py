@@ -50,7 +50,7 @@ def start(update: Update, context: CallbackContext) -> int:
     return GENDER
 
 
-def gender(update: Update, context: CallbackContext) -> int:
+def get_name(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("Gender of %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
@@ -140,7 +140,7 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            GENDER: [MessageHandler(Filters.regex('^(Да|Нет)$'), gender)],
+            GENDER: [MessageHandler(Filters.regex('^(Да|Нет)$'), get_name)],
             PHOTO: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
             LOCATION: [
                 MessageHandler(Filters.location, location),
