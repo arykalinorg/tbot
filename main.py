@@ -35,7 +35,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-GENDER, PHOTO, LOCATION, BIO = range(4)
+START_ASKING, WAITING, GET_NAME, LOCATION, BIO = range(5)
 
 
 def start(update: Update, context: CallbackContext) -> int:
@@ -47,7 +47,31 @@ def start(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
-    return GENDER
+    return START_ASKING
+
+
+def get_start_asking(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    logger.info("Gender of %s: %s", user.first_name, update.message.text)
+    if update.message.text == 'Да':
+        update.message.reply_text(
+            'Как вас зовут?',
+            reply_markup=ReplyKeyboardRemove(),
+        )
+
+        return GET_NAME
+    return WAITING
+
+def wait(update: Update, context: CallbackContext) -> int:
+    reply_keyboard = [['Я готов!']]
+
+    update.message.reply_text(
+        'Привет, я бот интересующийся сообществами.'
+        'Вы готовы поговорить?',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+    )
+
+    return GET_NAME
 
 
 def get_name(update: Update, context: CallbackContext) -> int:
@@ -59,7 +83,7 @@ def get_name(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardRemove(),
     )
 
-    return PHOTO
+    return GET_NAME
 
 
 def photo(update: Update, context: CallbackContext) -> int:
@@ -136,12 +160,13 @@ def main() -> None:
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    # Add conversation handler with the states START_ASKING, GET_NAME, LOCATION and BIO
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            GENDER: [MessageHandler(Filters.regex('^(Да|Нет)$'), get_name)],
-            PHOTO: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
+            START_ASKING: [MessageHandler(Filters.regex('^(Да|Нет)$'), get_start_asking)],
+            WAITING: [MessageHandler(Filters.regex('^Я готов!$'), wait)],
+            GET_NAME: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
             LOCATION: [
                 MessageHandler(Filters.location, location),
                 CommandHandler('skip', skip_location),
