@@ -52,17 +52,20 @@ def start(update: Update, context: CallbackContext) -> int:
 
 def get_start_asking(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("Gender of %s: %s", user.first_name, update.message.text)
+    logger.info("Answer from %s: %s", user.first_name, update.message.text)
     if update.message.text == 'Да':
         update.message.reply_text(
             'Как вас зовут?',
             reply_markup=ReplyKeyboardRemove(),
         )
-
+        logger.info("Answer from %s: is %s getting name", user.first_name, update.message.text)
         return GET_NAME
+    logger.info("Answer from %s: is %s waiting", user.first_name, update.message.text)
     return WAITING
 
 def wait(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    logger.info("showing wait to user %s", user.first_name)
     reply_keyboard = [['Я готов!']]
 
     update.message.reply_text(
