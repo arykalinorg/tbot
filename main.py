@@ -61,7 +61,7 @@ def get_start_asking(update: Update, context: CallbackContext) -> int:
         logger.info("Answer from %s: is %s getting name", user.first_name, update.message.text)
         return GET_NAME
     logger.info("Answer from %s: is %s waiting", user.first_name, update.message.text)
-    return WAITING
+    return GET_NAME
 
 def wait(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
@@ -74,7 +74,7 @@ def wait(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
-    return GET_NAME
+    return WAITING
 
 
 def get_name(update: Update, context: CallbackContext) -> int:
