@@ -49,12 +49,6 @@ def start(update: Update, context: CallbackContext) -> int:
 
     return START_ASKING
 
-
-def get_ask_ready(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("Answer from %s: %s", user.first_name, update.message.text)
-    return GET_NAME
-
 def wait(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("showing wait to user %s", user.first_name)
@@ -65,17 +59,18 @@ def wait(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
     )
 
-    return GET_NAME
+    return WAITING
 
 
 def get_name(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("Gender of %s: %s", user.first_name, update.message.text)
+    logger.info("Asking name of %s", user.first_name)
     update.message.reply_text(
         'Как вас зовут?',
         reply_markup=ReplyKeyboardRemove(),
     )
-
+    name = update.message.text
+    logger.info("%s entered name", name)
     return GET_NAME
 
 
@@ -158,7 +153,7 @@ def main() -> None:
         entry_points=[CommandHandler('start', start)],
         states={
             START_ASKING: [
-                MessageHandler(Filters.regex('^(Да)$'), get_ask_ready),
+                MessageHandler(Filters.regex('^(Да)$'), get_name),
                 MessageHandler(Filters.regex('^(Нет)$'), wait)
             ],
             WAITING: [MessageHandler(Filters.regex('^Я готов!$'), get_name)],
