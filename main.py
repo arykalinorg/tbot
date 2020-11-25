@@ -70,7 +70,7 @@ def get_name(update: Update, context: CallbackContext) -> int:
         reply_markup=ReplyKeyboardRemove(),
     )
     name = update.message.text
-    logger.info("%s entered name", name)
+    logger.info("%s entered name %s", user.first_name, name)
     return GET_NAME
 
 
