@@ -157,7 +157,7 @@ def main() -> None:
                 MessageHandler(Filters.regex('^(Нет)$'), wait)
             ],
             WAITING: [MessageHandler(Filters.regex('^Я готов!$'), get_name)],
-            GET_NAME: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
+            GET_NAME: [MessageHandler(Filters.text, bio)],
             LOCATION: [
                 MessageHandler(Filters.location, location),
                 CommandHandler('skip', skip_location),
